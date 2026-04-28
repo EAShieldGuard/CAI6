@@ -23,7 +23,9 @@ app = FastAPI(title="ZTNA Broker PoC", version="2.1")
 BASE_DIR = Path(__file__).resolve().parent
 POLICY_FILE = BASE_DIR / "access_policy.json"
 TRUSTED_CA_FILE = BASE_DIR / "trusted_ca.pem"
-TOKEN_SECRET = os.environ.get("INSEGUS_TOKEN_SECRET") or secrets.token_urlsafe(32)
+TOKEN_SECRET = os.environ.get("INSEGUS_TOKEN_SECRET")
+if not TOKEN_SECRET:
+    raise RuntimeError("INSEGUS_TOKEN_SECRET is required to start the broker")
 UPSTREAM_BASE_URL = os.environ.get("INSEGUS_UPSTREAM_URL", "http://127.0.0.1:9000")
 
 NONCE_STORE: dict[str, dict[str, Any]] = {}
@@ -310,7 +312,8 @@ async def reverse_proxy(path: str, request: Request):
     payload = _verify_token(token)
 
     requested_resource = "/" + path
-    if payload.get("resource") and payload["resource"] != requested_resource:
+    token_resource = payload.get("resource")
+    if not token_resource or token_resource != requested_resource:
         raise HTTPException(status_code=403, detail="Token no autoriza este recurso")
 
     upstream_url = f"{UPSTREAM_BASE_URL.rstrip('/')}{requested_resource}"
@@ -318,6 +321,7 @@ async def reverse_proxy(path: str, request: Request):
         k: v
         for k, v in request.headers.items()
         if k.lower() not in {"host", "authorization", "content-length"}
+        and not k.lower().startswith("x-ztna-")
     }
     forwarded_headers["X-ZTNA-Subject"] = payload.get("sub", "")
     forwarded_headers["X-ZTNA-Role"] = payload.get("role", "")
