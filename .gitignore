@@ -1,0 +1,32 @@
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node / Hardhat
+node_modules/
+artifacts/
+cache/
+coverage/
+coverage.json
+
+# Environment variables
+.env
+.env.local
+
+# Generados por scripts (claves, certs, firmas, planes)
+*.pem
+*.key
+*.crt
+*.p7s
+plan_camunda_offline.json
+plan_camunda_offline.csv
+*priv.pem
+*csr.pem
+cliente_ztna_cert.pem
+cliente_ztna_key.pem
+trusted_ca.pem
+
+# OS
+.DS_Store
+Thumbs.db
