@@ -13,13 +13,15 @@ module.exports = {
     },
   },
   paths: {
-    sources: "./",
+    sources: "./contracts",
     tests: "./test",
     cache: "./cache",
     artifacts: "./artifacts",
   },
   networks: {
-    hardhat: {},
+    hardhat: {
+      accounts: { count: 35 },
+    },
     sepolia: {
       url: SEPOLIA_RPC_URL,
       accounts: PRIVATE_KEY === "0x" + "0".repeat(64) ? [] : [PRIVATE_KEY],
