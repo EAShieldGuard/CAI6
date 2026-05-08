@@ -11,6 +11,9 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 import httpx
+from dotenv import load_dotenv
+
+load_dotenv()
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec, padding, rsa
