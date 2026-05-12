@@ -59,7 +59,7 @@ python3 2_generador_camunda_fairness.py --instances 20 --output-json plan_camund
 ## 4. Mejoras aplicadas en esta revision
 
 ### Broker ZTNA
-- Token HMAC con secreto fuerte por entorno (`INSEGUS_TOKEN_SECRET`); fallback a token aleatorio en arranque, evitando secretos hardcodeados.
+- Token HMAC con secreto fuerte obligatorio por entorno (`INSEGUS_TOKEN_SECRET`), evitando secretos hardcodeados o tokens efimeros no reproducibles.
 - Soporte de `not_valid_before_utc` / `not_valid_after_utc` para evitar APIs deprecadas de `cryptography`.
 - Ventana horaria evaluada en la zona horaria definida en politica (`Europe/Madrid`) y opcional `weekdays_only` para restringir acceso a dias laborables.
 

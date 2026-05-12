@@ -14,7 +14,7 @@ CANDIDATES = {
     "T2.1": ["GTR", "LPG", "RGB", "HYV", "BJC"],
     "T2.2": ["RGB", "MDS", "LPG", "HYV"],
     "T3": ["PGR"],
-    "T4": ["MFE", "HJR", "PTS", "IHP", "PGR"],
+    "T4": ["MFE", "HJR", "PTS", "IHP"],
 }
 
 EMPLOYEES = sorted({employee for task in TASKS for employee in CANDIDATES[task]}.union({"JVG"}))

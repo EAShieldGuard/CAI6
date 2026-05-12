@@ -46,6 +46,11 @@ mv "$tmp_dir/privkey.pem" "$GATEWAY_CERT_DIR/privkey.pem"
 
 if ! nginx -t >/dev/null 2>&1; then
 	log "ERROR: nginx -t fallo tras actualizar certificados"
+	if [[ -f "$GATEWAY_CERT_DIR/fullchain.pem.bak" && -f "$GATEWAY_CERT_DIR/privkey.pem.bak" ]]; then
+		mv "$GATEWAY_CERT_DIR/fullchain.pem.bak" "$GATEWAY_CERT_DIR/fullchain.pem"
+		mv "$GATEWAY_CERT_DIR/privkey.pem.bak" "$GATEWAY_CERT_DIR/privkey.pem"
+		log "Rollback aplicado: certificados anteriores restaurados"
+	fi
 	exit 1
 fi
 

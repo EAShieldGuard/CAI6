@@ -1,7 +1,7 @@
 **Hoja de Control del Documento**
 
 * **Título del Informe:** INFORME DE DIGITALIZACIÓN DE LA IDENTIDAD, EL CONTROL DE ACCESO Y LA ACCOUNTABILITY EN LAS COMPRAS DE UN SERVICIO DE SALUD PÚBLICO
-* **Fecha:** 04/05/2026
+* **Fecha:** 11/05/2026
 * **Modifica a:** ……………
 * **Realizado por:** EA ShieldGuard
 * **Integrantes:** Fernando Triguero, José Manuel García y Adrián Ramírez
@@ -17,7 +17,24 @@ Este informe detalla la solución técnica desarrollada por EA ShieldGuard para 
 
 2. **Control de acceso (Consulta 6.2):** Broker ZTNA implementado como Reverse Proxy con política contextual (CBAC) cargada desde JSON sin modificación de código, verificación de posesión del certificado mediante nonce con TTL anti-replay, y propuesta de alternativa de bajo coste (Wazuh + osquery) frente a MDM/EDR propietario. Adicionalmente, precálculo offline de las 20 instancias del proceso de compra en Camunda satisfaciendo separación de deberes dinámica, binding de deberes, conflicto de intereses y distribución equitativa de carga.
 
-3. **Accountability en compras (Consulta 6.3):** Desarrollo, análisis estático (Slither + Mythril + Solhint) y despliegue en Ethereum Sepolia de un Smart Contract `HealthProcurementAuction` con esquema commit-reveal para subasta Vickrey inversa. El análisis estático no identificó vulnerabilidades High o Medium. Los 14 casos de prueba automatizados en Hardhat cubren todos los requisitos funcionales y de seguridad.
+3. **Accountability en compras (Consulta 6.3):** Desarrollo, análisis estático (Slither + Mythril + Solhint), despliegue local verificado en Hardhat y flujo de despliegue preparado para Ethereum Sepolia de un Smart Contract `HealthProcurementAuction` con esquema commit-reveal para subasta Vickrey inversa. El análisis estático no identificó vulnerabilidades High o Medium. Los 14 casos de prueba automatizados en Hardhat cubren todos los requisitos funcionales y de seguridad.
+
+### **Verificaciones ejecutadas en la revisión final (11/05/2026)**
+
+| Área | Ejecución | Resultado |
+| :---- | :---- | :---- |
+| Python CAI 6.1/6.2 | `python -m compileall -q Entregables_CAI6/Consulta_1 Entregables_CAI6/Consulta_2` | OK, sin errores de sintaxis |
+| Dependencias Python | `pip install cryptography fastapi uvicorn httpx python-dotenv tzdata` | Entorno preparado; se añade `Entregables_CAI6/requirements-python.txt` |
+| CSR empleado/servidor | Generación ECC P-256 y revisión con OpenSSL | OK: curva P-256, DN completo, EKU ClientAuth/ServerAuth y SAN en servidor |
+| Firma CMS | Firma detached y verificación de `informe_demo.xml.p7s` contra `trusted_ca.pem` | OK: firma válida e integridad intacta |
+| ZTNA | TestClient sobre `/api/auth/nonce` y `/api/auth/verify` | OK: acceso válido 200, replay 401, rol no autorizado 403, fin de semana 403 |
+| Camunda offline | `2_generador_camunda_fairness.py --instances 20` | OK: `plan_camunda_offline.json/csv` generados y R1-R4 verificados |
+| Smart contract | `npm install`, `npm run compile`, `npm test` | OK: compilación Solidity y 14 tests Hardhat passing |
+| Despliegue local | `npm run deploy:local` | OK: factory y auction desplegados en red Hardhat local |
+| Auditoría Node | `npm audit --omit=dev` | OK: 0 vulnerabilidades de producción |
+| Solhint | `npm run static:solhint` | OK: 0 errores; advertencias de estilo/NatSpec/gas documentadas |
+
+No se ejecutó despliegue real en Sepolia porque el proyecto no incluye `PRIVATE_KEY`, `SEPOLIA_RPC_URL` operativo con fondos ni `ETHERSCAN_API_KEY`. La matriz OP1-OP9 queda preparada para completarse con hashes de transacción cuando el Servicio facilite una wallet de pruebas financiada.
 
 ---
 
@@ -270,35 +287,35 @@ El script genera las 20 instancias con las métricas de fairness calculadas por 
 | 2 | HYV | GTR | MDS | PGR | HJR |
 | 3 | JVG | BJC | RGB | PGR | PTS |
 | 4 | HYV | LPG | HYV | PGR | IHP |
-| 5 | JVG | LPG | RGB | PGR | MFE |
-| 6 | HYV | GTR | MDS | PGR | HJR |
+| 5 | HYV | LPG | RGB | PGR | MFE |
+| 6 | JVG | GTR | MDS | PGR | HJR |
 | 7 | HYV | LPG | RGB | PGR | PTS |
 | 8 | HYV | BJC | RGB | PGR | IHP |
 | 9 | HYV | LPG | MDS | PGR | MFE |
-| 10 | JVG | BJC | RGB | PGR | HJR |
-| 11 | HYV | LPG | HYV | PGR | IHP |
-| 12 | HYV | LPG | RGB | PGR | PTS |
-| 13 | JVG | GTR | MDS | PGR | MFE |
-| 14 | HYV | LPG | RGB | PGR | HJR |
+| 10 | HYV | LPG | RGB | PGR | HJR |
+| 11 | JVG | BJC | HYV | PGR | PTS |
+| 12 | HYV | LPG | RGB | PGR | IHP |
+| 13 | HYV | GTR | MDS | PGR | MFE |
+| 14 | JVG | LPG | RGB | PGR | HJR |
 | 15 | HYV | BJC | RGB | PGR | PTS |
 | 16 | HYV | GTR | MDS | PGR | IHP |
-| 17 | JVG | BJC | LPG | PGR | MFE |
-| 18 | HYV | LPG | RGB | PGR | HJR |
-| 19 | HYV | LPG | RGB | PGR | PTS |
+| 17 | HYV | LPG | RGB | PGR | MFE |
+| 18 | HYV | BJC | LPG | PGR | HJR |
+| 19 | JVG | LPG | RGB | PGR | PTS |
 | 20 | HYV | GTR | MDS | PGR | IHP |
 
 **Verificación de restricciones sobre las 20 instancias:**
 
-* **R1 (T2.1 ≠ T2.2):** Verificado en todas las instancias. En inst. 4 y 11, T2.2=HYV se debe a la herencia jerárquica (DR\>TR\>TC en la jerarquía de roles del Servicio): HYV como DR puede ejecutar tareas de TC. T2.1=LPG ≠ T2.2=HYV en ambos casos. ✓
+* **R1 (T2.1 ≠ T2.2):** Verificado en todas las instancias. En inst. 4 y 11, T2.2=HYV se debe a la herencia jerárquica (DR\>TR\>TC en la jerarquía de roles del Servicio): HYV como DR puede ejecutar tareas de TC. En ambas instancias, T2.1 y T2.2 son usuarios distintos. ✓
 * **R2 (T3 ≠ T4):** T3=PGR (DM) no pertenece a los roles DE ni PS, por lo que la restricción es satisfecha automáticamente en todas las instancias. ✓
 * **R3 (GTR→MDS en T2.2):** GTR aparece en T2.1 en las instancias 2, 6, 13, 16, 20. En todas ellas T2.2=MDS. ✓
-* **R4 (JVG solo en T1):** JVG aparece en las instancias 3, 5, 10, 13, 17. En todas, únicamente en T1. ✓
+* **R4 (JVG solo en T1):** JVG aparece en las instancias 3, 6, 11, 14, 19. En todas, únicamente en T1. ✓
 * **R5 (Fairness):**
 
 | Tarea | Distribución | Desv. estándar |
 | :---- | :---- | :---- |
-| T2.1 | LPG×10, GTR×5, BJC×5, RGB×0, HYV×0 | 3.9 |
-| T2.2 | RGB×11, MDS×6, HYV×2, LPG×1 | 4.0 |
+| T2.1 | LPG×10, GTR×5, BJC×5 | 2.36 |
+| T2.2 | RGB×11, MDS×6, HYV×2, LPG×1 | 3.94 |
 | T4 | MFE×5, HJR×5, PTS×5, IHP×5 | 0.0 (perfecta) |
 
 La concentración de LPG en T2.1 y RGB en T2.2 responde a la disponibilidad de candidatos por tarea y a la restricción R3 (que reserva MDS para cuando GTR actúa en T2.1), no a un fallo del algoritmo. T4 alcanza distribución perfecta. T3 recae siempre en PGR por ser el único DM.
@@ -319,7 +336,7 @@ El plan puede regenerarse con `--instances N` para futuros ciclos de compra, ada
 
 ### Metodología y tecnologías usadas
 
-Se ha desarrollado el contrato `HealthProcurementAuction.sol` (Solidity 0.8.20) que implementa una **subasta Vickrey inversa con esquema commit-reveal** para la adquisición de medicamentos y material sanitario. El esquema commit-reveal garantiza la confidencialidad de las pujas hasta el cierre de la subasta:
+Se ha desarrollado el contrato `HealthProcurementAuction.sol` (pragma `^0.8.20`, compilado en Hardhat con Solidity 0.8.24) que implementa una **subasta Vickrey inversa con esquema commit-reveal** para la adquisición de medicamentos y material sanitario. El esquema commit-reveal garantiza la confidencialidad de las pujas hasta el cierre de la subasta:
 
 * **Fase commit (bidding):** el pujante envía `keccak256(abi.encodePacked(bid, salt))` junto al depósito (≥ 10% de la puja como `msg.value`). El contrato registra el hash y el depósito, sin conocer la puja real.
 * **Fase reveal:** tras el cierre (`MAX_BIDS = 30` pujas o `biddingDeadline`), cada pujante revela su puja real y su salt. El contrato verifica que el hash coincide y procesa el resultado.
@@ -330,7 +347,7 @@ Adicionalmente, se ha desarrollado `HealthProcurementAuctionFactory` para instan
 
 | Componente | Implementación | Justificación |
 | :---- | :---- | :---- |
-| Lenguaje | Solidity 0.8.20 | Protección nativa contra overflow/underflow; no requiere SafeMath |
+| Lenguaje | Solidity `^0.8.20`, compilador 0.8.24 | Protección nativa contra overflow/underflow; no requiere SafeMath |
 | Confidencialidad de pujas | Esquema commit-reveal (`keccak256`) | Único mecanismo que garantiza privacidad de pujas on-chain |
 | Anti-reentrancy | `nonReentrant` (OpenZeppelin) + patrón CEI | Prevención de ataques tipo DAO |
 | Control de acceso | `onlyHealthService` en funciones críticas | Solo el Servicio puede finalizar, confirmar entrega o penalizar |
@@ -357,6 +374,8 @@ Adicionalmente, se ha desarrollado `HealthProcurementAuctionFactory` para instan
 
 El contrato **no presenta vulnerabilidades explotables** tras el análisis estático multi-herramienta.
 
+**Análisis con Solhint:** 0 errores. Se registran advertencias de estilo, NatSpec y optimización de gas (`reporte-solhint.txt`); no afectan al cumplimiento funcional ni a la seguridad del flujo commit-reveal.
+
 **Pruebas dinámicas automatizadas (Hardhat, 14 casos):**
 
 | Caso | Descripción | Resultado |
@@ -372,22 +391,28 @@ El contrato **no presenta vulnerabilidades explotables** tras el análisis está
 | 9 | `confirmDeliveryAndPay` con `msg.value = secondPrice` | ✓ evento `DeliveryConfirmed` |
 | 10 | Penalización por no entrega: depósito retenido para `healthService` | ✓ evento `WinnerPenalized` |
 | 11 | Cierre por `MAX_BIDS = 30` | ✓ bids bloqueados tras el cierre |
-| 12 | Bloqueo de `finalizeAuction` antes de `revealDeadline` | ✓ revert "Reveal phase not ended" |
-| 13 | Control de acceso `onlyHealthService` | ✓ revert para cuentas no autorizadas |
+| 12 | Bloqueo de `finalizeAuction` antes de `revealDeadline` y control `onlyHealthService` | ✓ reverts esperados |
+| 13 | Publicación de todas las pujas reveladas solo tras finalizar | ✓ `getAllRevealedBids` protegido |
 | 14 | Factory crea subastas independientes con parámetros distintos | ✓ |
 
-**Despliegue y pruebas en Sepolia:**
+**Despliegue local y preparación Sepolia:**
 
 ```bash
-# Compilar y desplegar
+# Compilar, probar y desplegar localmente
 npm run compile
+npm test
+npm run deploy:local
+
+# Desplegar en Sepolia cuando exista wallet financiada
 npm run deploy:sepolia
 
 # Verificar bytecode en Etherscan-Sepolia
 npx hardhat verify --network sepolia <factoryAddress>
 ```
 
-El Servicio de Salud puede conectarse a la testnet configurando MetaMask en Sepolia (Chain ID: 11155111) y obteniendo ETH de prueba mediante los faucets oficiales (sepoliafaucet.com o Google faucet). Los proveedores operan con su propio wallet MetaMask; el Servicio de Salud actúa como `healthService` con la dirección del deployer. Las evidencias de transacciones en Sepolia (hashes y capturas de Etherscan) se incluyen en el Anexo D.
+El despliegue local en Hardhat se ha ejecutado correctamente durante la revisión final. Para Sepolia, el Servicio de Salud puede conectarse configurando MetaMask en Sepolia (Chain ID: 11155111) y obteniendo ETH de prueba mediante los faucets oficiales (sepoliafaucet.com o Google faucet). Los proveedores operan con su propio wallet MetaMask; el Servicio de Salud actúa como `healthService` con la dirección del deployer.
+
+La ejecución real en Sepolia queda pendiente de una wallet de pruebas financiada y credenciales `SEPOLIA_RPC_URL` / `ETHERSCAN_API_KEY`. Una vez ejecutadas las operaciones OP1-OP9, las evidencias a adjuntar son los hashes de transacción y enlaces de Etherscan-Sepolia.
 
 **Cumplimiento normativo:** RGPD Art. 5.2 (accountability en compras públicas mediante registro inmutable), ENS (trazabilidad de operaciones críticas), eIDAS2 (uso de identidad digital de wallets para proveedores).
 
@@ -397,7 +422,7 @@ El Servicio de Salud puede conectarse a la testnet configurando MetaMask en Sepo
 
 La CAI 6 ofrece al Servicio de Salud soluciones técnicas verificadas sobre identidad digital, control de acceso contextual y accountability en compras. Los certificados ECC P-256 con gestión centralizada en Gateway TLS eliminan el overhead de gestionar 46 certificados independientes. El Broker ZTNA aplica la política sin código hardcodeado y verifica la identidad sin necesidad de segundo factor adicional. Las 20 instancias Camunda precalculadas garantizan cumplimiento de la política antes de la ejecución, sin riesgo de violaciones en tiempo de ejecución. El Smart Contract supera el análisis estático con cero vulnerabilidades High/Medium y los 14 casos de prueba Hardhat pasan correctamente.
 
-Las acciones operativas inmediatas recomendadas son: (1) completar la firma digital del informe con DNIe o Autofirma y adjuntarla como entregable; (2) ejecutar las pruebas OP1–OP9 en Sepolia y registrar los hashes de transacciones como evidencia auditable; y (3) establecer monitorización de expiración de certificados (alerta a 30 días) y revisión semestral de la política CBAC del Broker ZTNA.
+Las acciones operativas inmediatas recomendadas son: (1) completar la firma digital cualificada del informe final con DNIe o Autofirma y adjuntarla como entregable; (2) ejecutar las pruebas OP1–OP9 en Sepolia con una wallet financiada y registrar los hashes de transacciones como evidencia auditable; y (3) establecer monitorización de expiración de certificados (alerta a 30 días) y revisión semestral de la política CBAC del Broker ZTNA.
 
 ---
 
@@ -409,4 +434,4 @@ Las acciones operativas inmediatas recomendadas son: (1) completar la firma digi
 
 * **Anexo C (Consulta 6.2.2):** Script de precálculo de instancias Camunda con métricas de fairness (`2_generador_camunda_fairness.py`), plan de instancias en JSON (`plan_camunda_offline.json`) y CSV (`plan_camunda_offline.csv`).
 
-* **Anexo D (Consulta 6.3):** Contrato Solidity (`contracts/HealthProcurementAuction.sol`), suite de tests Hardhat (`test/HealthProcurementAuction.test.js`), scripts de despliegue (`scripts/deploy.js`), informes de análisis estático (`reports/slither.json`, `reports/mythril.md`, `reports/solhint.txt`), plan de pruebas Sepolia (`PlanPruebas.md`) y evidencias de transacciones en Etherscan-Sepolia.
+* **Anexo D (Consulta 6.3):** Contrato Solidity (`contracts/HealthProcurementAuction.sol`), suite de tests Hardhat (`test/HealthProcurementAuction.test.js`), scripts de despliegue (`scripts/deploy.js`), informes de análisis estático (`reporte-slither.json`, `reporte-mythril.md`, `reporte-solhint.txt`), plan de pruebas Sepolia (`PlanPruebas.md`) y plantilla de evidencias para hashes de Etherscan-Sepolia.
