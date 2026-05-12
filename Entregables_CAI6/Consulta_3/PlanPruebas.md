@@ -3,7 +3,7 @@
 ## 1. Pruebas estaticas (pre-despliegue)
 
 ### 1.1 Slither
-Comando: `slither HealthProcurementAuction.sol`
+Comando: `slither contracts/HealthProcurementAuction.sol --solc-remaps '@openzeppelin/=node_modules/@openzeppelin/'`
 
 Hallazgos esperados y mitigacion:
 | Detector | Severidad | Estado |
@@ -15,7 +15,7 @@ Hallazgos esperados y mitigacion:
 | solc-version | Informational | Aceptado: pragma 0.8.20 (>=0.8.0 protege overflow) |
 
 ### 1.2 Mythril
-Comando: `myth analyze HealthProcurementAuction.sol --solv 0.8.24`
+Comando: `myth analyze contracts/HealthProcurementAuction.sol --solv 0.8.24`
 
 Hallazgos esperados:
 - SWC-107 reentrancy: no aplica (mitigado).
@@ -24,8 +24,8 @@ Hallazgos esperados:
 - SWC-110 assert violation: no aplica.
 
 ### 1.3 Solhint
-Comando: `solhint HealthProcurementAuction.sol`
-Estilo y buenas practicas (no funcional).
+Comando: `npm run static:solhint`
+Resultado esperado: 0 errores. Las advertencias son de estilo, NatSpec u optimizacion de gas; no bloquean el comportamiento funcional.
 
 ## 2. Pruebas dinamicas (Hardhat local)
 
@@ -43,8 +43,8 @@ Casos cubiertos por `test/HealthProcurementAuction.test.js`:
 9. Pago al ganador en `confirmDeliveryAndPay` por segundo precio + reembolso de deposito.
 10. Penalizacion por no entrega: deposito retenido para `healthService`.
 11. Cierre por `MAX_BIDS = 30`.
-12. Bloqueo de `finalizeAuction` antes de `revealDeadline`.
-13. Control de acceso `onlyHealthService` para finalizar/penalizar.
+12. Bloqueo de `finalizeAuction` antes de `revealDeadline` y control `onlyHealthService`.
+13. Publicacion de todas las pujas reveladas solo despues de finalizar.
 14. Factory crea subastas independientes con parametros distintos.
 
 ## 3. Pruebas dinamicas (Sepolia testnet)

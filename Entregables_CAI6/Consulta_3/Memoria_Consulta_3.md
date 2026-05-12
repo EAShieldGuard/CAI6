@@ -34,7 +34,7 @@ Script: `scripts/static_analysis.sh` ejecuta:
 - Mythril -> `reports/mythril.md`
 - Solhint -> `reports/solhint.txt`
 
-Tabla de resultados esperados, severidad y mitigacion en `PlanPruebas.md` seccion 1. Falsos positivos clasicos (timestamp, arbitrary-send) se justifican por requisito.
+Tabla de resultados esperados, severidad y mitigacion en `PlanPruebas.md` seccion 1. Falsos positivos clasicos (timestamp, arbitrary-send) se justifican por requisito. En la revision final, `npm run static:solhint` devuelve 0 errores; las advertencias restantes son de estilo, NatSpec u optimizacion de gas.
 
 ## 4. Testing dinamico (Hardhat)
 Comandos:
@@ -43,11 +43,12 @@ cp .env.example .env   # rellenar PRIVATE_KEY, SEPOLIA_RPC_URL, ETHERSCAN_API_KE
 npm install
 npm test
 ```
-14 casos automatizados cubren todos los requisitos funcionales y de seguridad (`test/HealthProcurementAuction.test.js`).
+14 casos automatizados cubren todos los requisitos funcionales y de seguridad (`test/HealthProcurementAuction.test.js`), incluida la publicacion de pujas reveladas mediante `getAllRevealedBids`.
 
 ## 5. Despliegue en Sepolia
 ```
 npm run compile
+npm run deploy:local
 npm run deploy:sepolia
 npx hardhat verify --network sepolia <addr> <args...>
 ```

@@ -199,6 +199,34 @@ describe("HealthProcurementAuction", () => {
       "Only Health Service can perform this action"
     );
   });
+
+  it("publishes all revealed bids only after finalization", async () => {
+    const { auction, bidders, biddingDeadline, revealDeadline, healthService } = await deployAuction();
+    const bids = [
+      { signer: bidders[0], amount: ethers.parseEther("400") },
+      { signer: bidders[1], amount: ethers.parseEther("500") },
+    ];
+
+    for (const b of bids) {
+      await auction.connect(b.signer).commitBid(commitHash(b.amount, SECRET), {
+        value: ethers.parseEther("60"),
+      });
+    }
+
+    await time.increaseTo(biddingDeadline + 1);
+    for (const b of bids) {
+      await auction.connect(b.signer).revealBid(b.amount, SECRET);
+    }
+
+    await expect(auction.getAllRevealedBids()).to.be.revertedWith("Results available after finalize");
+    await time.increaseTo(revealDeadline + 1);
+    await auction.connect(healthService).finalizeAuction();
+
+    const [addresses, amounts, revealed] = await auction.getAllRevealedBids();
+    expect(addresses).to.deep.equal([bidders[0].address, bidders[1].address]);
+    expect(amounts).to.deep.equal([bids[0].amount, bids[1].amount]);
+    expect(revealed).to.deep.equal([true, true]);
+  });
 });
 
 describe("HealthProcurementAuctionFactory", () => {

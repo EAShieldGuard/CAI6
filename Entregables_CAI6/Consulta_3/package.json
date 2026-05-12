@@ -9,8 +9,9 @@
     "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
     "deploy:local": "hardhat run scripts/deploy.js --network hardhat",
     "verify:sepolia": "hardhat verify --network sepolia",
-    "static:slither": "slither HealthProcurementAuction.sol --solc-remaps '@openzeppelin/=node_modules/@openzeppelin/' --json reports/slither.json || true",
-    "static:mythril": "myth analyze HealthProcurementAuction.sol --solv 0.8.24 -o markdown > reports/mythril.md || true"
+    "static:slither": "slither contracts/HealthProcurementAuction.sol --solc-remaps '@openzeppelin/=node_modules/@openzeppelin/' --json reports/slither.json || true",
+    "static:mythril": "myth analyze contracts/HealthProcurementAuction.sol --solv 0.8.24 -o markdown > reports/mythril.md || true",
+    "static:solhint": "solhint \"contracts/**/*.sol\""
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
