@@ -13,10 +13,10 @@ async function main() {
 
   const now = Math.floor(Date.now() / 1000);
   const auctionStart = now + 60;
-  const biddingDeadline = now + 15 * 60;
-  const revealDeadline = biddingDeadline + 15 * 60;
+  const biddingDeadline = now + 10 * 60;
+  const revealDeadline = biddingDeadline + 10 * 60;
   const deliveryDeadline = revealDeadline + 30 * 60;
-  const maxPrice = ethers.parseEther("0.1");
+  const maxPrice = ethers.parseEther("0.01");
 
   const tx = await factory.createAuction(
     auctionStart,
