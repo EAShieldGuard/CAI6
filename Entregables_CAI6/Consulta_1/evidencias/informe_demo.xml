@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<InformeCAI6>
+  <Titulo>Informe de Digitalizacion de la Identidad, el Control de Acceso y la Accountability en las Compras de un Servicio de Salud Publico</Titulo>
+  <Equipo>EA ShieldGuard</Equipo>
+  <Fecha>2026-05-13</Fecha>
+  <Consultas>
+    <Consulta id="6.1">Autenticacion Digital con Certificados ECC</Consulta>
+    <Consulta id="6.2">Control de Acceso Contextual y Proceso de Negocio Dinamico</Consulta>
+    <Consulta id="6.3">Automatizacion de Compras mediante Smart Contract en Ethereum</Consulta>
+  </Consultas>
+</InformeCAI6>
