@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="Definitions_ComprasSanitarias"
+                  targetNamespace="http://insegus.es/cai6/compras"
+                  exporter="EA ShieldGuard" exporterVersion="1.0">
+  <bpmn:collaboration id="Collaboration_Compras">
+    <bpmn:participant id="Participant_ServicioSalud"
+                      name="Servicio de Salud de Comunidad Autonoma"
+                      processRef="Process_ComprasSanitarias"/>
+  </bpmn:collaboration>
+  <bpmn:process id="Process_ComprasSanitarias"
+                name="Proceso de Compras de Productos Sanitarios"
+                isExecutable="true"
+                camunda:historyTimeToLive="180">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_Compras" name="Proceso de Compras">
+        <bpmn:flowNodeRef>StartEvent_Iniciar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>UserTask_T1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_AND_Split</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>UserTask_T2_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>UserTask_T2_2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_AND_Join</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>UserTask_T3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>UserTask_T4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Fin</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="StartEvent_Iniciar" name="Iniciar">
+      <bpmn:outgoing>Flow_Start_T1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:userTask id="UserTask_T1"
+                   name="T1: Especificar detalles generales de la compra"
+                   camunda:assignee="${assigneeT1}"
+                   camunda:candidateGroups="DR">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="instanceId" label="Instancia" type="long"/>
+          <camunda:formField id="detallesCompra" label="Detalles" type="string"/>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Start_T1</bpmn:incoming>
+      <bpmn:outgoing>Flow_T1_Split</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:parallelGateway id="Gateway_AND_Split" name="Puerta AND">
+      <bpmn:incoming>Flow_T1_Split</bpmn:incoming>
+      <bpmn:outgoing>Flow_Split_T2_1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Split_T2_2</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <bpmn:userTask id="UserTask_T2_1"
+                   name="T2.1: Elaborar prescripciones tecnicas de la compra"
+                   camunda:assignee="${assigneeT2_1}"
+                   camunda:candidateGroups="TR">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="prescripcionTecnica" label="Prescripcion" type="string"/>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Split_T2_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_T2_1_Join</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UserTask_T2_2"
+                   name="T2.2: Buscar proveedores para la compra"
+                   camunda:assignee="${assigneeT2_2}"
+                   camunda:candidateGroups="TC">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="proveedores" label="Proveedores" type="string"/>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Split_T2_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_T2_2_Join</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:parallelGateway id="Gateway_AND_Join" name="Puerta AND">
+      <bpmn:incoming>Flow_T2_1_Join</bpmn:incoming>
+      <bpmn:incoming>Flow_T2_2_Join</bpmn:incoming>
+      <bpmn:outgoing>Flow_Join_T3</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <bpmn:userTask id="UserTask_T3"
+                   name="T3: Aprobar y publicar la resolucion de compra"
+                   camunda:assignee="${assigneeT3}"
+                   camunda:candidateGroups="DM">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="resolucion" label="Resolucion" type="string"/>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Join_T3</bpmn:incoming>
+      <bpmn:outgoing>Flow_T3_T4</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UserTask_T4"
+                   name="T4: Recibir ofertas y decidir mejor oferta"
+                   camunda:assignee="${assigneeT4}"
+                   camunda:candidateGroups="DE,PS">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="mejorOferta" label="Mejor oferta" type="string"/>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_T3_T4</bpmn:incoming>
+      <bpmn:outgoing>Flow_T4_End</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:endEvent id="EndEvent_Fin" name="Fin">
+      <bpmn:incoming>Flow_T4_End</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_Start_T1"   sourceRef="StartEvent_Iniciar"  targetRef="UserTask_T1"/>
+    <bpmn:sequenceFlow id="Flow_T1_Split"   sourceRef="UserTask_T1"         targetRef="Gateway_AND_Split"/>
+    <bpmn:sequenceFlow id="Flow_Split_T2_1" sourceRef="Gateway_AND_Split"   targetRef="UserTask_T2_1"/>
+    <bpmn:sequenceFlow id="Flow_Split_T2_2" sourceRef="Gateway_AND_Split"   targetRef="UserTask_T2_2"/>
+    <bpmn:sequenceFlow id="Flow_T2_1_Join"  sourceRef="UserTask_T2_1"       targetRef="Gateway_AND_Join"/>
+    <bpmn:sequenceFlow id="Flow_T2_2_Join"  sourceRef="UserTask_T2_2"       targetRef="Gateway_AND_Join"/>
+    <bpmn:sequenceFlow id="Flow_Join_T3"    sourceRef="Gateway_AND_Join"    targetRef="UserTask_T3"/>
+    <bpmn:sequenceFlow id="Flow_T3_T4"      sourceRef="UserTask_T3"         targetRef="UserTask_T4"/>
+    <bpmn:sequenceFlow id="Flow_T4_End"     sourceRef="UserTask_T4"         targetRef="EndEvent_Fin"/>
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_Compras">
+      <bpmndi:BPMNShape id="Participant_ServicioSalud_di" bpmnElement="Participant_ServicioSalud" isHorizontal="true">
+        <dc:Bounds x="120" y="60" width="1100" height="320"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Compras_di" bpmnElement="Lane_Compras" isHorizontal="true">
+        <dc:Bounds x="150" y="60" width="1070" height="320"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="StartEvent_Iniciar_di" bpmnElement="StartEvent_Iniciar">
+        <dc:Bounds x="200" y="200" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="206" y="243" width="24" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_T1_di" bpmnElement="UserTask_T1">
+        <dc:Bounds x="280" y="178" width="120" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_AND_Split_di" bpmnElement="Gateway_AND_Split">
+        <dc:Bounds x="440" y="193" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="436" y="250" width="60" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_T2_1_di" bpmnElement="UserTask_T2_1">
+        <dc:Bounds x="540" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_T2_2_di" bpmnElement="UserTask_T2_2">
+        <dc:Bounds x="540" y="260" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_AND_Join_di" bpmnElement="Gateway_AND_Join">
+        <dc:Bounds x="730" y="193" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="726" y="250" width="60" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_T3_di" bpmnElement="UserTask_T3">
+        <dc:Bounds x="830" y="178" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_T4_di" bpmnElement="UserTask_T4">
+        <dc:Bounds x="1000" y="178" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Fin_di" bpmnElement="EndEvent_Fin">
+        <dc:Bounds x="1170" y="200" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1180" y="243" width="20" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Flow_Start_T1_di" bpmnElement="Flow_Start_T1">
+        <di:waypoint x="236" y="218"/><di:waypoint x="280" y="218"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_T1_Split_di" bpmnElement="Flow_T1_Split">
+        <di:waypoint x="400" y="218"/><di:waypoint x="440" y="218"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Split_T2_1_di" bpmnElement="Flow_Split_T2_1">
+        <di:waypoint x="465" y="193"/><di:waypoint x="465" y="140"/><di:waypoint x="540" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Split_T2_2_di" bpmnElement="Flow_Split_T2_2">
+        <di:waypoint x="465" y="243"/><di:waypoint x="465" y="300"/><di:waypoint x="540" y="300"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_T2_1_Join_di" bpmnElement="Flow_T2_1_Join">
+        <di:waypoint x="680" y="140"/><di:waypoint x="755" y="140"/><di:waypoint x="755" y="193"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_T2_2_Join_di" bpmnElement="Flow_T2_2_Join">
+        <di:waypoint x="680" y="300"/><di:waypoint x="755" y="300"/><di:waypoint x="755" y="243"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Join_T3_di" bpmnElement="Flow_Join_T3">
+        <di:waypoint x="780" y="218"/><di:waypoint x="830" y="218"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_T3_T4_di" bpmnElement="Flow_T3_T4">
+        <di:waypoint x="970" y="218"/><di:waypoint x="1000" y="218"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_T4_End_di" bpmnElement="Flow_T4_End">
+        <di:waypoint x="1140" y="218"/><di:waypoint x="1170" y="218"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
