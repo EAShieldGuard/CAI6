@@ -36,7 +36,10 @@ Se recomienda integrar telemetria de endpoint desde stack open source (Wazuh + o
 Con ello se evita confiar ciegamente en datos locales del cliente y se reduce dependencia de licencias costosas.
 
 ## 3. Control de acceso dinamico en Camunda - Modo Offline
-Archivo implementado: 2_generador_camunda_fairness.py
+Archivos implementados:
+- 2_generador_camunda_fairness.py
+- compras_sanitarias.bpmn
+- 4_camunda_bulk_start.py
 
 Se adopta enfoque Offline por robustez operativa ante sobrecarga y para evitar efecto cherry-picking.
 
@@ -47,14 +50,31 @@ Cobertura R1-R5:
 4. R4: si JVG participa, solo puede hacerlo en T1.
 5. R5: fairness con optimizacion de carga segun elegibilidad.
 
+### Modelo BPMN (compras_sanitarias.bpmn)
+Proceso ejecutable Camunda Platform 7 con:
+- 5 User Tasks: T1 (DR), T2.1 (TR), T2.2 (TC), T3 (DM), T4 (DE, PS).
+- AND-split tras T1, AND-join previo a T3.
+- camunda:assignee="${assigneeTx}" por tarea; variables inyectadas al arrancar instancia.
+- candidateGroups por rol para visibilidad en Tasklist.
+
+### Generador de plan (2_generador_camunda_fairness.py)
 Salidas implementadas:
-- Plan de instancias en JSON.
-- Plan de instancias en CSV.
+- Plan de instancias en JSON (plan_camunda_offline.json).
+- Plan de instancias en CSV (plan_camunda_offline.csv).
 - Metricas de fairness (media, desviacion, maximo y minimo).
-- Opcion de push forzado de assignee a Camunda REST API.
 
 Ejemplo:
 python3 2_generador_camunda_fairness.py --instances 20 --output-json plan_camunda_offline.json --output-csv plan_camunda_offline.csv
+
+### Despliegue y arranque masivo (4_camunda_bulk_start.py)
+Despliega el BPMN y arranca las 20 instancias via REST API de Camunda Engine:
+1. POST /deployment/create (multipart) -> deploymentId.
+2. POST /process-definition/key/Process_ComprasSanitarias/start x20 con variables assigneeT1/T2_1/T2_2/T3/T4 + instanceId extraidas del plan JSON.
+
+Ejemplo:
+python3 4_camunda_bulk_start.py --camunda-url http://localhost:8080/engine-rest --bpmn compras_sanitarias.bpmn --plan plan_camunda_offline.json
+
+Resultado verificado: 20 processInstanceId generados con businessKey CAI6-INST-01..20; assignees conformes al plan en GET /task?taskDefinitionKey=UserTask_T1.
 
 ## 4. Mejoras aplicadas en esta revision
 
@@ -76,4 +96,5 @@ python3 2_generador_camunda_fairness.py --instances 20 --output-json plan_camund
    - `--location Domicilio` -> 403 ubicacion no autorizada.
    - `--no-appointment-match` -> 403 cita no correlacionada.
    - Modificar `timestamp_utc` fuera de horario -> 403 horario.
-5. `python3 2_generador_camunda_fairness.py` -> plan offline para Camunda + opcional push REST a `/task/{id}/assignee`.
+5. `python3 2_generador_camunda_fairness.py --instances 20 --output-json plan_camunda_offline.json --output-csv plan_camunda_offline.csv` -> plan offline R1-R5.
+6. `python3 4_camunda_bulk_start.py --bpmn compras_sanitarias.bpmn --plan plan_camunda_offline.json` -> despliega BPMN + arranca 20 instancias; verificar en Camunda Tasklist (http://localhost:8080/camunda) que aparecen 20 tareas T1 con assignee conforme al plan.

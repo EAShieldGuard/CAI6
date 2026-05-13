@@ -1,0 +1,162 @@
+[
+  {
+    "instance": 1,
+    "T1": "HYV",
+    "T2.1": "LPG",
+    "T2.2": "RGB",
+    "T3": "PGR",
+    "T4": "MFE"
+  },
+  {
+    "instance": 2,
+    "T1": "HYV",
+    "T2.1": "GTR",
+    "T2.2": "MDS",
+    "T3": "PGR",
+    "T4": "HJR"
+  },
+  {
+    "instance": 3,
+    "T1": "JVG",
+    "T2.1": "BJC",
+    "T2.2": "RGB",
+    "T3": "PGR",
+    "T4": "PTS"
+  },
+  {
+    "instance": 4,
+    "T1": "HYV",
+    "T2.1": "LPG",
+    "T2.2": "HYV",
+    "T3": "PGR",
+    "T4": "IHP"
+  },
+  {
+    "instance": 5,
+    "T1": "HYV",
+    "T2.1": "LPG",
+    "T2.2": "RGB",
+    "T3": "PGR",
+    "T4": "MFE"
+  },
+  {
+    "instance": 6,
+    "T1": "JVG",
+    "T2.1": "GTR",
+    "T2.2": "MDS",
+    "T3": "PGR",
+    "T4": "HJR"
+  },
+  {
+    "instance": 7,
+    "T1": "HYV",
+    "T2.1": "LPG",
+    "T2.2": "RGB",
+    "T3": "PGR",
+    "T4": "PTS"
+  },
+  {
+    "instance": 8,
+    "T1": "HYV",
+    "T2.1": "BJC",
+    "T2.2": "RGB",
+    "T3": "PGR",
+    "T4": "IHP"
+  },
+  {
+    "instance": 9,
+    "T1": "HYV",
+    "T2.1": "LPG",
+    "T2.2": "MDS",
+    "T3": "PGR",
+    "T4": "MFE"
+  },
+  {
+    "instance": 10,
+    "T1": "HYV",
+    "T2.1": "LPG",
+    "T2.2": "RGB",
+    "T3": "PGR",
+    "T4": "HJR"
+  },
+  {
+    "instance": 11,
+    "T1": "JVG",
+    "T2.1": "BJC",
+    "T2.2": "HYV",
+    "T3": "PGR",
+    "T4": "PTS"
+  },
+  {
+    "instance": 12,
+    "T1": "HYV",
+    "T2.1": "LPG",
+    "T2.2": "RGB",
+    "T3": "PGR",
+    "T4": "IHP"
+  },
+  {
+    "instance": 13,
+    "T1": "HYV",
+    "T2.1": "GTR",
+    "T2.2": "MDS",
+    "T3": "PGR",
+    "T4": "MFE"
+  },
+  {
+    "instance": 14,
+    "T1": "JVG",
+    "T2.1": "LPG",
+    "T2.2": "RGB",
+    "T3": "PGR",
+    "T4": "HJR"
+  },
+  {
+    "instance": 15,
+    "T1": "HYV",
+    "T2.1": "BJC",
+    "T2.2": "RGB",
+    "T3": "PGR",
+    "T4": "PTS"
+  },
+  {
+    "instance": 16,
+    "T1": "HYV",
+    "T2.1": "GTR",
+    "T2.2": "MDS",
+    "T3": "PGR",
+    "T4": "IHP"
+  },
+  {
+    "instance": 17,
+    "T1": "HYV",
+    "T2.1": "LPG",
+    "T2.2": "RGB",
+    "T3": "PGR",
+    "T4": "MFE"
+  },
+  {
+    "instance": 18,
+    "T1": "HYV",
+    "T2.1": "BJC",
+    "T2.2": "LPG",
+    "T3": "PGR",
+    "T4": "HJR"
+  },
+  {
+    "instance": 19,
+    "T1": "JVG",
+    "T2.1": "LPG",
+    "T2.2": "RGB",
+    "T3": "PGR",
+    "T4": "PTS"
+  },
+  {
+    "instance": 20,
+    "T1": "HYV",
+    "T2.1": "GTR",
+    "T2.2": "MDS",
+    "T3": "PGR",
+    "T4": "IHP"
+  }
+]

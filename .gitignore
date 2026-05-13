@@ -19,8 +19,6 @@ coverage.json
 *.key
 *.crt
 *.p7s
-plan_camunda_offline.json
-plan_camunda_offline.csv
 *priv.pem
 *csr.pem
 cliente_ztna_cert.pem
