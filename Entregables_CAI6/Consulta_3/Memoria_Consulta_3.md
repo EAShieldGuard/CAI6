@@ -59,7 +59,7 @@ Justificacion tecnica:
 - Etherscan-Sepolia da evidencia inmutable y auditable (hashes de tx + verificacion de bytecode).
 
 ## 6. Plan de pruebas dinamicas en testnet
-Detalle completo en `PlanPruebas.md` seccion 3, incluida la matriz de operaciones (OP1-OP9), cuentas, esperado y enlace a evidencia en `https://sepolia.etherscan.io/tx/<hash>`.
+Detalle completo en `PlanPruebas.md` seccion 3, incluida la matriz de operaciones (OP1-OP9), cuentas, esperado y enlace a evidencia en `https://sepolia.etherscan.io/address/0x97a971333e85B08eB2da2a3ec9c5f11Afb1Ff781`.
 
 ## 7. Conexion de usuarios del Servicio de Salud
 - Personal del SS: MetaMask -> Sepolia + cuenta importada.

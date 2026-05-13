@@ -79,7 +79,7 @@ npx hardhat verify --network sepolia <auctionAddress> <healthService> <auctionSt
 | OP8 | `confirmDeliveryAndPay` con value=secondPrice | health | tx OK, evento `DeliveryConfirmed` |
 | OP9 | `markNonDelivery` post deliveryDeadline | health | tx OK, evento `WinnerPenalized` |
 
-Cada hash de transaccion se documentara en una tabla con enlace a `https://sepolia.etherscan.io/tx/<hash>` como evidencia auditable.
+Las transacciones pueden consultarse en `https://sepolia.etherscan.io/address/0x97a971333e85B08eB2da2a3ec9c5f11Afb1Ff781`.
 
 ## 4. Cobertura cruzada con requisitos
 
